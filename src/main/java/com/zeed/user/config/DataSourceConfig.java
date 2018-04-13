@@ -28,7 +28,7 @@ public class DataSourceConfig {
                 = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(primaryDataSource());
         em.setPackagesToScan(
-                new String[] { "com.zeed.user.models" });
+                new String[] { "com.zeed.usermanagement.models" });
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);

@@ -1,6 +1,6 @@
 package com.zeed.user.repository;
 
-import com.zeed.user.models.ManagedUser;
+import com.zeed.usermanagement.models.ManagedUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

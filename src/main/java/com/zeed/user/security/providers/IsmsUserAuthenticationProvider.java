@@ -1,12 +1,12 @@
 package com.zeed.user.security.providers;
 
-import com.zeed.user.models.Authority;
-import com.zeed.user.models.ManagedUser;
 import com.zeed.user.repository.AuthorityRepository;
 import com.zeed.user.repository.ManagedUserAuthorityRepository;
 import com.zeed.user.repository.ManagedUserRepository;
 import com.zeed.user.security.AuthenticationProvider;
-import com.zeed.user.security.UserDetailsTokenEnvelope;
+import com.zeed.usermanagement.models.Authority;
+import com.zeed.usermanagement.models.ManagedUser;
+import com.zeed.usermanagement.security.UserDetailsTokenEnvelope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

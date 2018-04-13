@@ -1,6 +1,6 @@
 package com.zeed.user.repository;
 
-import com.zeed.user.models.OauthClientDetails;
+import com.zeed.usermanagement.models.OauthClientDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
