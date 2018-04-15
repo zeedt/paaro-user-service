@@ -39,7 +39,7 @@ public class IsmsUserAuthenticationProvider implements AuthenticationProvider {
         ManagedUser managedUser = managedUserRepository.findOneByUserName(authentication.getPrincipal().toString());
 
         if (managedUser == null ) {
-            return null;
+            throw new BadCredentialsException("Username not found");
         }else{
             //Check if the password match
             if (passwordEncoder.matches(authentication.getCredentials().toString(),managedUser.getPassword())) {
@@ -63,8 +63,6 @@ public class IsmsUserAuthenticationProvider implements AuthenticationProvider {
                 throw new BadCredentialsException("Authentication failed. Username/password incorrect");
             }
         }
-
-
 
     }
 
