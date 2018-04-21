@@ -21,7 +21,7 @@ public class UserApplicationTests {
 	@Test
 	public void generatePassword (){
 
-		System.out.println(passwordEncoder.encode("password"));
+		System.out.println(passwordEncoder.encode("secret"));
 
 	}
 
