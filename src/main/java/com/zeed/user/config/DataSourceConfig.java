@@ -16,7 +16,7 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.zeed.user.repository", entityManagerFactoryRef = "localContainerEntityManagerFactoryBean" ,transactionManagerRef = "platformTransactionManager" )
+@EnableJpaRepositories(basePackages = "com.zeed.usermanagement.repository", entityManagerFactoryRef = "localContainerEntityManagerFactoryBean" ,transactionManagerRef = "platformTransactionManager" )
 public class DataSourceConfig {
 
     @Autowired

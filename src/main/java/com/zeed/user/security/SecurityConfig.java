@@ -57,23 +57,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         new String[]{"/app/**",
                                 "/login",
-                                "/hello",
+                                "/user/**",
                                 "/css/**",
-                                "/js/**",
-                                "/dashboard/**",
-                                "/image/**",
-                                "/assets/**",
-                                "/localusers/**",
-                                "/activations/**"
+                                "/js/**"
                         }
                 ).permitAll()
                 .anyRequest().fullyAuthenticated().and()
-                .csrf().ignoringAntMatchers("/hello/**")
+                .csrf().ignoringAntMatchers("/user/**")
                 .requireCsrfProtectionMatcher(new RequestMatcher() {
                     private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
                     private RegexRequestMatcher apiMatcher = new RegexRequestMatcher("/api/.*", null);
 //                    private RegexRequestMatcher oauthMatcher = new RegexRequestMatcher("/oauth/.*", null);
-                    private RegexRequestMatcher localuserMatcher = new RegexRequestMatcher("/helloo/.*", null);
+                    private RegexRequestMatcher localuserMatcher = new RegexRequestMatcher("/users/.*", null);
                     @Override
                     public boolean matches(HttpServletRequest httpServletRequest) {
                         if (allowedMethods.matcher(httpServletRequest.getMethod()).matches())

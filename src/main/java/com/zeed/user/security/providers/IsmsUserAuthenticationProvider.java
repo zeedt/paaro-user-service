@@ -1,11 +1,13 @@
 package com.zeed.user.security.providers;
 
-import com.zeed.user.repository.AuthorityRepository;
-import com.zeed.user.repository.ManagedUserAuthorityRepository;
-import com.zeed.user.repository.ManagedUserRepository;
 import com.zeed.user.security.AuthenticationProvider;
+import com.zeed.user.services.UserService;
 import com.zeed.usermanagement.models.Authority;
 import com.zeed.usermanagement.models.ManagedUser;
+import com.zeed.usermanagement.models.ManagedUserAuthority;
+import com.zeed.usermanagement.repository.AuthorityRepository;
+import com.zeed.usermanagement.repository.ManagedUserAuthorityRepository;
+import com.zeed.usermanagement.repository.ManagedUserRepository;
 import com.zeed.usermanagement.security.UserDetailsTokenEnvelope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,6 +35,9 @@ public class IsmsUserAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private AuthorityRepository authorityRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
@@ -44,18 +49,10 @@ public class IsmsUserAuthenticationProvider implements AuthenticationProvider {
             //Check if the password match
             if (passwordEncoder.matches(authentication.getCredentials().toString(),managedUser.getPassword())) {
 
-                List<Long> authoritiesId = managedUserAuthorityRepository.findAllByManagedUserId(managedUser.getId());
+                List<ManagedUserAuthority> authoritiesId = managedUserAuthorityRepository.findAllByManagedUserId(managedUser.getId());
 
-                List<Authority> authorities = new ArrayList<>();
+                List<Authority> authorities = userService.getAuthoritiesByUserId(managedUser.getId());
 
-                if (authoritiesId!=null && !authoritiesId.isEmpty()) {
-                    authoritiesId.forEach(aLong -> {
-                        Authority authority = authorityRepository.findById(aLong);
-                        if (authority!=null) {
-                            authorities.add(authority);
-                        }
-                    });
-                }
                 UserDetailsTokenEnvelope userDetailsTokenEnvelope = new UserDetailsTokenEnvelope(authorities,managedUser);
                 UsernamePasswordAuthenticationToken authenticationDetails = new UsernamePasswordAuthenticationToken(userDetailsTokenEnvelope,null,authorities);
                 return authenticationDetails;
