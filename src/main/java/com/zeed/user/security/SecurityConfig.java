@@ -68,7 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
                     private RegexRequestMatcher apiMatcher = new RegexRequestMatcher("/api/.*", null);
 //                    private RegexRequestMatcher oauthMatcher = new RegexRequestMatcher("/oauth/.*", null);
-                    private RegexRequestMatcher localuserMatcher = new RegexRequestMatcher("/users/.*", null);
+                    private RegexRequestMatcher localuserMatcher = new RegexRequestMatcher("/user/.*", null);
                     @Override
                     public boolean matches(HttpServletRequest httpServletRequest) {
                         if (allowedMethods.matcher(httpServletRequest.getMethod()).matches())

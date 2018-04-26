@@ -1,7 +1,7 @@
 package com.zeed.user.controller;
 
 import com.zeed.user.services.UserService;
-import com.zeed.usermanagement.apimodels.UserModelApi;
+import com.zeed.usermanagement.apimodels.ManagedUserModelApi;
 import com.zeed.usermanagement.models.Authority;
 import com.zeed.usermanagement.models.ManagedUser;
 import com.zeed.usermanagement.repository.AuthorityRepository;
@@ -9,10 +9,7 @@ import com.zeed.usermanagement.repository.ManagedUserAuthorityRepository;
 import com.zeed.usermanagement.repository.ManagedUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -26,8 +23,14 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/getDetailsByUsername/{username}")
-    public UserModelApi getUserInformation(@PathVariable String username, Principal principal) throws Exception {
+    public ManagedUserModelApi getUserInformation(@PathVariable String username, Principal principal) throws Exception {
         return userService.getUserModelByUsername(username);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/createUser", method = RequestMethod.POST)
+    public ManagedUserModelApi createUser(@RequestBody ManagedUser managedUser){
+        return userService.addManagedUser(managedUser);
     }
 
 }
