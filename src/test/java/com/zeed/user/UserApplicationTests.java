@@ -12,8 +12,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.Date;
@@ -45,7 +43,7 @@ public class UserApplicationTests {
 	@Test
 	public void testUserService () throws Exception {
 
-		ManagedUserModelApi userModelApi = userService.getUserModelByUsername("hjbhjbjh");
+		ManagedUserModelApi userModelApi = userService.getUserModelByEmail("hjbhjbjh");
 
 		System.out.println(userModelApi);
 
@@ -67,7 +65,7 @@ public class UserApplicationTests {
 		managedUser.setLastName("Yusuf");
 		managedUser.setPhoneNumber("00000000000000");
 		managedUser.setUserCategory(UserCategory.ADMIN);
-		managedUser.setUserName("zeedoli");
+		managedUser.setEmail("zeedoli");
 		userService.addManagedUser(managedUser);
 	}
 

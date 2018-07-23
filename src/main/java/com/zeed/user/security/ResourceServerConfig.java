@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Autowired
-    private TokenStore tokenStore;
+    private TokenStore jdbcTokenStore;
 
     @Value("${oauth.resource.id}")
     private String resourceId;
@@ -23,7 +23,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
         resources.resourceId(resourceId)
-                .tokenStore(tokenStore);
+                .tokenStore(jdbcTokenStore);
     }
 
     @Override

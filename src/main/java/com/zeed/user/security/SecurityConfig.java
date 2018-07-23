@@ -30,10 +30,7 @@ import java.util.regex.Pattern;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private TokenStore tokenStore;
-
-    @Autowired
-    private RedisOperationsSessionRepository redisOperationsSessionRepository;
+    private TokenStore jdbcTokenStore;
 
     @Resource(name = "authenticationProviders")
     private List<AuthenticationProvider> authenticationProviders;
@@ -82,7 +79,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         return true;
                     }
                 })
-                .and().formLogin().loginPage("/login").permitAll()
+                .and().formLogin().loginPage("/login")
+                .permitAll()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .sessionFixation().migrateSession()
@@ -110,7 +108,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public UserConcurrentSessions userConcurrentSessions(){
-        return new UserConcurrentSessions(sessionRegistry(), tokenStore, redisOperationsSessionRepository);
+        return new UserConcurrentSessions(sessionRegistry(), jdbcTokenStore);
 
     }
 }

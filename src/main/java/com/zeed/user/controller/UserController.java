@@ -2,17 +2,14 @@ package com.zeed.user.controller;
 
 import com.zeed.user.services.UserService;
 import com.zeed.usermanagement.apimodels.ManagedUserModelApi;
-import com.zeed.usermanagement.models.Authority;
 import com.zeed.usermanagement.models.ManagedUser;
-import com.zeed.usermanagement.repository.AuthorityRepository;
-import com.zeed.usermanagement.repository.ManagedUserAuthorityRepository;
-import com.zeed.usermanagement.repository.ManagedUserRepository;
+import com.zeed.usermanagement.requestmodels.PasswordResetRequestModel;
+import com.zeed.usermanagement.requestmodels.UserUpdateRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -22,9 +19,9 @@ public class UserController {
     public UserService userService;
 
     @ResponseBody
-    @RequestMapping(value = "/getDetailsByUsername/{username}")
-    public ManagedUserModelApi getUserInformation(@PathVariable String username, Principal principal) throws Exception {
-        return userService.getUserModelByUsername(username);
+    @RequestMapping(value = "/getDetailsByemail/{email}")
+    public ManagedUserModelApi getUserInformation(@PathVariable String email, Principal principal) throws Exception {
+        return userService.getUserModelByEmail(email);
     }
 
     @ResponseBody
@@ -32,5 +29,31 @@ public class UserController {
     public ManagedUserModelApi createUser(@RequestBody ManagedUser managedUser){
         return userService.addManagedUser(managedUser);
     }
+
+    @ResponseBody
+    @RequestMapping (value = "/deactivateUser", method = RequestMethod.GET)
+    public ManagedUserModelApi deactivateUser(@RequestParam("email") String email) {
+        return userService.deactivateUser(email);
+    }
+
+    @ResponseBody
+    @RequestMapping (value = "/activateUser", method = RequestMethod.GET)
+    public ManagedUserModelApi activateUser(@RequestParam("email") String email) {
+        return userService.activateUser(email);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/reset_user_password", method = RequestMethod.POST)
+    public ManagedUserModelApi resetUserPassword(@RequestBody PasswordResetRequestModel resetRequestModel) {
+        return userService.resetUserPassword(resetRequestModel);
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/updateUser", method = RequestMethod.POST)
+    public ManagedUserModelApi updateUserDetails(@RequestBody UserUpdateRequestModel requestModel){
+        return userService.updateUser(requestModel);
+    }
+
 
 }

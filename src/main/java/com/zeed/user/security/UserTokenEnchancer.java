@@ -19,7 +19,6 @@ public class UserTokenEnchancer implements TokenEnhancer {
                 // TODO: Modify  UserDetailsTokenEnvelope class in user-lib by changing managedUser field to private and add getter and setter methods
                 ManagedUser managedUser = userDetailsTokenEnvelope.managedUser;
                 Map<String,Object> additionalInfo = new HashMap<>();
-                additionalInfo.put("username",managedUser.getUserName());
                 additionalInfo.put("firstName",managedUser.getFirstName());
                 additionalInfo.put("lastName",managedUser.getLastName());
                 additionalInfo.put("email",managedUser.getEmail());

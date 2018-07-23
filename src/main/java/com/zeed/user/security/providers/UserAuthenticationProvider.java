@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class IsmsUserAuthenticationProvider implements AuthenticationProvider {
+public class UserAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private ManagedUserRepository managedUserRepository;
@@ -41,7 +41,7 @@ public class IsmsUserAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        ManagedUser managedUser = managedUserRepository.findOneByUserName(authentication.getPrincipal().toString());
+        ManagedUser managedUser = managedUserRepository.findOneByEmail(authentication.getPrincipal().toString());
 
         if (managedUser == null ) {
             throw new BadCredentialsException("Username not found");

@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeSe
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
@@ -46,9 +47,6 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private JedisConnectionFactory jedisConnectionFactory;
-
-    @Autowired
     private OauthClientDetailsService oauthClientDetailsService;
 
     @Override
@@ -65,22 +63,11 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints.authenticationManager(authenticationManager)
                 .tokenEnhancer(tokenEnhancer())
-                .tokenStore(tokenStore())
+                .tokenStore(jdbcTokenStore())
+//                .tokenStore(tokenStore())
                 .authorizationCodeServices(authorizationCodeServices())
                 .accessTokenConverter(accessTokenConverter())
                 .userApprovalHandler(userApprovalHandler());
-    }
-
-    @Bean
-    public TokenStore tokenStore() {
-        return new RedisTokenStore(jedisConnectionFactory);
-    }
-
-
-    @Bean
-    @Qualifier("jwtTokenStore")
-    public TokenStore jwtTokenStore() {
-        return new JwtTokenStore(accessTokenConverter());
     }
 
     @Bean
@@ -95,6 +82,11 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     @Bean
     public AuthorizationCodeServices authorizationCodeServices() {
         return new JdbcAuthorizationCodeServices(dataSource);
+    }
+
+    @Bean
+    public JdbcTokenStore jdbcTokenStore() {
+        return new JdbcTokenStore(dataSource);
     }
 
     @Bean
