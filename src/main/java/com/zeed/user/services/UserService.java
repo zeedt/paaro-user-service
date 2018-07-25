@@ -6,6 +6,7 @@ import com.zeed.usermanagement.enums.ResponseStatus;
 import com.zeed.usermanagement.models.Authority;
 import com.zeed.usermanagement.models.ManagedUser;
 import com.zeed.usermanagement.models.ManagedUserAuthority;
+import com.zeed.usermanagement.models.UserCategory;
 import com.zeed.usermanagement.repository.AuthorityRepository;
 import com.zeed.usermanagement.repository.ManagedUserAuthorityRepository;
 import com.zeed.usermanagement.repository.ManagedUserRepository;
@@ -67,7 +68,7 @@ public class UserService {
             List<Long> authoritiesIds = new ArrayList<>();
 
             managedUserAuthorities.stream().parallel().forEach(managedUserAuthority -> {
-                authoritiesIds.add(managedUserAuthority.getId());
+                authoritiesIds.add(managedUserAuthority.getAuthorityId());
             });
 
             return authorityRepository.findAllByIdIn(authoritiesIds);
@@ -101,6 +102,7 @@ public class UserService {
             }
             managedUser.setDateCreated(new java.util.Date());
             managedUser.setActive(true);
+            managedUser.setUserCategory(UserCategory.CUSTOMER);
             managedUser.setPassword(passwordEncoder.encode(managedUser.getPassword()));
             managedUserRepository.save(managedUser);
             managedUser.setPassword("");

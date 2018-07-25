@@ -1,6 +1,10 @@
 package com.zeed.user.security;
 
 import com.zeed.user.security.providers.UserAuthenticationProvider;
+import com.zeed.user.services.UserService;
+import com.zeed.usermanagement.models.Authority;
+import com.zeed.usermanagement.models.ManagedUser;
+import com.zeed.usermanagement.repository.ManagedUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -20,13 +24,29 @@ public class OauthAuthenticationProvider implements AuthenticationProvider {
     //For now, it's just one authentication provider that is needed
     @Autowired
     private UserAuthenticationProvider userAuthenticationProvider;
+    @Autowired
+    private ManagedUserRepository managedUserRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String userName = authentication.getName();
         String password = (authentication.getCredentials() !=null ) ? authentication.getCredentials().toString() : null;
 
-        UsernamePasswordAuthenticationToken tokenAuthentication = new UsernamePasswordAuthenticationToken(userName, password);
+        ManagedUser managedUser = managedUserRepository.findOneByEmail(userName);
+
+        if (managedUser == null) {
+            try {
+                throw new Exception(String.format("User %s not found", userName));
+            } catch (Exception e) {
+            }
+        }
+
+        List<Authority> authorities = userService.getAuthoritiesByUserId(managedUser.getId());
+
+        UsernamePasswordAuthenticationToken tokenAuthentication = new UsernamePasswordAuthenticationToken(userName, password, authorities);
         tokenAuthentication.setDetails(authentication.getDetails());
 
         //modify to log out first incase user is logged in already
