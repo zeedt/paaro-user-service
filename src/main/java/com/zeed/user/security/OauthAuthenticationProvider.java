@@ -1,5 +1,6 @@
 package com.zeed.user.security;
 
+import com.zeed.user.exception.PaaroAuthenticationException;
 import com.zeed.user.security.providers.UserAuthenticationProvider;
 import com.zeed.user.services.UserService;
 import com.zeed.usermanagement.models.Authority;
@@ -38,10 +39,7 @@ public class OauthAuthenticationProvider implements AuthenticationProvider {
         ManagedUser managedUser = managedUserRepository.findOneByEmail(userName);
 
         if (managedUser == null) {
-            try {
-                throw new Exception(String.format("User %s not found", userName));
-            } catch (Exception e) {
-            }
+                throw new PaaroAuthenticationException("User not found");
         }
 
         List<Authority> authorities = userService.getAuthoritiesByUserId(managedUser.getId());

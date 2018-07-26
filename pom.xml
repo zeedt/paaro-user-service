@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.zeed</groupId>
-	<artifactId>user</artifactId>
+	<artifactId>paaro-user</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>user</name>
+	<name>paaro-user</name>
 	<description>Demo project for Spring Boot</description>
 
 	<parent>

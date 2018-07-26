@@ -17,9 +17,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -45,7 +49,7 @@ public class UserService {
             ManagedUser user = managedUserRepository.findOneByEmail(email);
 
             if (user == null) {
-                throw new Exception("User not found");
+                return new ManagedUserModelApi(ResponseStatus.NOT_FOUND, "User not found");
             } else{
                 List<Authority> authorities = getAuthoritiesByUserId(user.getId());
 
@@ -89,7 +93,7 @@ public class UserService {
 
             ManagedUser user = managedUserRepository.findOneByEmail(managedUser.getEmail());
             if (user!=null) {
-                return new ManagedUserModelApi(managedUser,null, ResponseStatus.ALREADY_EXIST);
+                return new ManagedUserModelApi(managedUser, null,null, ResponseStatus.ALREADY_EXIST);
             }
             if (Strings.isNullOrEmpty(managedUser.getPassword()) || managedUser.getPassword().trim().length() < 6) {
                 return new ManagedUserModelApi(managedUser, null, ResponseStatus.INVALID_REQUEST, "Password cannot be blank and must not be less than 6 characters ");
@@ -106,7 +110,7 @@ public class UserService {
             managedUser.setPassword(passwordEncoder.encode(managedUser.getPassword()));
             managedUserRepository.save(managedUser);
             managedUser.setPassword("");
-            return new ManagedUserModelApi(managedUser,null,ResponseStatus.SUCCESSFUL);
+            return new ManagedUserModelApi(managedUser,null, null,ResponseStatus.SUCCESSFUL);
         } catch (Exception e) {
             logger.error("Error occurred while creating user due to ", e);
             return new ManagedUserModelApi(managedUser,null, ResponseStatus.SYSTEM_ERROR,"Error occurred while creating user due to " + e.getCause().toString());
@@ -220,4 +224,8 @@ public class UserService {
         }
 
     }
+
+
+
+
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -19,8 +20,8 @@ public class UserController {
     public UserService userService;
 
     @ResponseBody
-    @RequestMapping(value = "/getDetailsByemail/{email}")
-    public ManagedUserModelApi getUserInformation(@PathVariable String email, Principal principal) throws Exception {
+    @RequestMapping(value = "/getDetailsByemail")
+    public ManagedUserModelApi getUserInformation(@RequestParam String email) throws Exception {
         return userService.getUserModelByEmail(email);
     }
 
@@ -54,6 +55,5 @@ public class UserController {
     public ManagedUserModelApi updateUserDetails(@RequestBody UserUpdateRequestModel requestModel){
         return userService.updateUser(requestModel);
     }
-
 
 }
