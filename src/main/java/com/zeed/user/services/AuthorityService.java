@@ -68,11 +68,15 @@ public class AuthorityService {
             List<Authority> successfullyPersisted = new ArrayList<>();
             savedAuthorities.stream().parallel().forEach(authority -> {
                 try {
-                    ManagedUserAuthority managedUserAuthority = new ManagedUserAuthority();
-                    managedUserAuthority.setAuthorityId(authority.getId());
-                    managedUserAuthority.setManagedUserId(managedUser.getId());
-                    managedUserAuthorityRepository.save(managedUserAuthority);
-                    successfullyPersisted.add(authority);
+
+                    List<ManagedUserAuthority> existingManagedUserAuthority = managedUserAuthorityRepository.findAllByManagedUserIdAndAuthorityId(managedUser.getId(), authority.getId());
+                    if (CollectionUtils.isEmpty(existingManagedUserAuthority)) {
+                        ManagedUserAuthority managedUserAuthority = new ManagedUserAuthority();
+                        managedUserAuthority.setAuthorityId(authority.getId());
+                        managedUserAuthority.setManagedUserId(managedUser.getId());
+                        managedUserAuthorityRepository.save(managedUserAuthority);
+                        successfullyPersisted.add(authority);
+                    }
                 } catch (Exception e) {
                     logger.error("Error occurred while persisting managed user authority due to ", e);
                 }
@@ -81,7 +85,7 @@ public class AuthorityService {
             ManagedUserModelApi managedUserModelApi = new ManagedUserModelApi();
             managedUserModelApi.setResponseStatus(ResponseStatus.SUCCESSFUL);
             managedUserModelApi.setAuthorityList(successfullyPersisted);
-            managedUserModelApi.setMessage(String.format("%d out of %d authorities mapped to user successfully", savedAuthorities.size(), authorities.size()));
+            managedUserModelApi.setMessage(String.format("%d out of %d authorities mapped to user successfully", successfullyPersisted.size(), authorities.size()));
             return managedUserModelApi;
 
         } catch (Exception e) {
@@ -123,7 +127,7 @@ public class AuthorityService {
 
             Authority savedAuthority = authorityRepository.findAuthorityByAuthority(authority);
 
-            if (authority == null) {
+            if (savedAuthority == null) {
                 return new ManagedUserModelApi(null,null,ResponseStatus.NOT_FOUND, "Authority not found");
             }
 
@@ -131,6 +135,12 @@ public class AuthorityService {
 
             if (managedUser == null) {
                 return new ManagedUserModelApi(null,null,ResponseStatus.NOT_FOUND, "User not found");
+            }
+
+            List<ManagedUserAuthority> existingManagedUserAuthority = managedUserAuthorityRepository.findAllByManagedUserIdAndAuthorityId(managedUser.getId(), savedAuthority.getId());
+
+            if (!CollectionUtils.isEmpty(existingManagedUserAuthority)) {
+                return new ManagedUserModelApi(ResponseStatus.ALREADY_EXIST, "Authority has already been mapped to uer");
             }
 
             ManagedUserAuthority managedUserAuthority = new ManagedUserAuthority();

@@ -39,7 +39,11 @@ public class OauthAuthenticationProvider implements AuthenticationProvider {
         ManagedUser managedUser = managedUserRepository.findOneByEmail(userName);
 
         if (managedUser == null) {
-                throw new PaaroAuthenticationException("User not found");
+            throw new PaaroAuthenticationException("User not found");
+        }
+
+        if (!managedUser.isActive()) {
+            throw new PaaroAuthenticationException("User has been deactivated");
         }
 
         List<Authority> authorities = userService.getAuthoritiesByUserId(managedUser.getId());
