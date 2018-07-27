@@ -49,23 +49,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/user/createUser");
+    }
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers(
                         new String[]{"/app/**",
                                 "/login",
-                                "/user/**",
                                 "/css/**",
                                 "/js/**"
                         }
                 ).permitAll()
-                .anyRequest().fullyAuthenticated().and()
+                .anyRequest().fullyAuthenticated()
+                .and()
                 .csrf().ignoringAntMatchers("/user/**")
                 .requireCsrfProtectionMatcher(new RequestMatcher() {
                     private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
                     private RegexRequestMatcher apiMatcher = new RegexRequestMatcher("/api/.*", null);
 //                    private RegexRequestMatcher oauthMatcher = new RegexRequestMatcher("/oauth/.*", null);
-                    private RegexRequestMatcher localuserMatcher = new RegexRequestMatcher("/user/.*", null);
+//                    private RegexRequestMatcher localuserMatcher = new RegexRequestMatcher("/user/.*", null);
                     @Override
                     public boolean matches(HttpServletRequest httpServletRequest) {
                         if (allowedMethods.matcher(httpServletRequest.getMethod()).matches())
@@ -74,8 +79,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             return false;
 //                        if (oauthMatcher.matches(httpServletRequest))
 //                            return false;
-                        if (localuserMatcher.matches(httpServletRequest))
-                            return false;
+//                        if (localuserMatcher.matches(httpServletRequest))
+//                            return false;
                         return true;
                     }
                 })

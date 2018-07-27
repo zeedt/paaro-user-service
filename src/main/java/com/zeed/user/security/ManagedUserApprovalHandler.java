@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 public class ManagedUserApprovalHandler extends DefaultUserApprovalHandler {
     @Override
     public AuthorizationRequest checkForPreApproval(AuthorizationRequest authorizationRequest, Authentication userAuthentication) {
-        //bypasses setting approval page
         authorizationRequest.setApproved(true);
         return authorizationRequest;
     }

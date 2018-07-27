@@ -26,8 +26,6 @@ public class UserConcurrentSessions implements SessionAuthenticationStrategy {
     private final SessionRegistry sessionRegistry;
     //token store
     private JdbcTokenStore tokenStore;
-    //session store
-    private RedisOperationsSessionRepository redisOperationsSessionRepository;
 
     public UserConcurrentSessions(SessionRegistry sessionRegistry, TokenStore tokenStore) {
         Assert.notNull(sessionRegistry, "The sessionRegistry cannot be null");

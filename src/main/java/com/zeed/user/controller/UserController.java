@@ -6,6 +6,7 @@ import com.zeed.usermanagement.models.ManagedUser;
 import com.zeed.usermanagement.requestmodels.PasswordResetRequestModel;
 import com.zeed.usermanagement.requestmodels.UserUpdateRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ public class UserController {
     public UserService userService;
 
     @ResponseBody
+    @PreAuthorize("hasAuthority('VIEW_USER_DETAILS')")
     @RequestMapping(value = "/getDetailsByemail")
     public ManagedUserModelApi getUserInformation(@RequestParam String email) throws Exception {
         return userService.getUserModelByEmail(email);
@@ -32,17 +34,20 @@ public class UserController {
     }
 
     @ResponseBody
+    @PreAuthorize("hasAuthority('DEACTIVATE_USER')")
     @RequestMapping (value = "/deactivateUser", method = RequestMethod.GET)
-    public ManagedUserModelApi deactivateUser(@RequestParam("email") String email) {
+    public ManagedUserModelApi deactivateUser(@RequestParam("email") String email, Principal principal) {
         return userService.deactivateUser(email);
     }
 
     @ResponseBody
+    @PreAuthorize("hasAuthority('ACTIVATE_USER')")
     @RequestMapping (value = "/activateUser", method = RequestMethod.GET)
     public ManagedUserModelApi activateUser(@RequestParam("email") String email) {
         return userService.activateUser(email);
     }
 
+    //TODO: pick email of the currently logged in user
     @ResponseBody
     @RequestMapping(value = "/reset_user_password", method = RequestMethod.POST)
     public ManagedUserModelApi resetUserPassword(@RequestBody PasswordResetRequestModel resetRequestModel) {

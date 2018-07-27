@@ -8,7 +8,10 @@ public class ApiRequestMatcher implements RequestMatcher {
     @Override
     public boolean matches(HttpServletRequest httpServletRequest) {
         String contextPath = httpServletRequest.getRequestURI();
-        if(contextPath != null && contextPath.contains("/api/")){
+        if(contextPath != null && contextPath.contains("/user/")){
+            return true;
+        }
+        if(contextPath != null && contextPath.contains("/authority/")){
             return true;
         }
         return false;

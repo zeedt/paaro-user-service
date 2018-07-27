@@ -80,7 +80,7 @@ public class AuthorityService {
 
             ManagedUserModelApi managedUserModelApi = new ManagedUserModelApi();
             managedUserModelApi.setResponseStatus(ResponseStatus.SUCCESSFUL);
-            managedUserModelApi.setAuthorities(successfullyPersisted);
+            managedUserModelApi.setAuthorityList(successfullyPersisted);
             managedUserModelApi.setMessage(String.format("%d out of %d authorities mapped to user successfully", savedAuthorities.size(), authorities.size()));
             return managedUserModelApi;
 
@@ -102,7 +102,7 @@ public class AuthorityService {
 
             ManagedUserModelApi managedUserModelApi = new ManagedUserModelApi();
             managedUserModelApi.setResponseStatus(ResponseStatus.SUCCESSFUL);
-            managedUserModelApi.setAuthorities(authorities);
+            managedUserModelApi.setAuthorityList(authorities);
             managedUserModelApi.setMessage("Authorities fetched successfully");
 
             return managedUserModelApi;
@@ -141,7 +141,7 @@ public class AuthorityService {
 
             ManagedUserModelApi managedUserModelApi = new ManagedUserModelApi();
             managedUserModelApi.setResponseStatus(ResponseStatus.SUCCESSFUL);
-            managedUserModelApi.setAuthority(savedAuthority);
+            managedUserModelApi.setAuthorityModel(savedAuthority);
             managedUserModelApi.setMessage("Authority mapped to user successfully");
 
             return managedUserModelApi;
@@ -151,6 +151,40 @@ public class AuthorityService {
             return new ManagedUserModelApi(null, null,ResponseStatus.SYSTEM_ERROR, "Error occurred while fetching details");
         }
     }
+
+    public ManagedUserModelApi addAuthority(Authority authority) {
+
+        try {
+            if (authority == null || StringUtils.isEmpty(authority.getAuthority()) || StringUtils.isEmpty(authority.getDescription()) ) {
+                return new ManagedUserModelApi(ResponseStatus.INVALID_REQUEST, "Description and authority name cannot be blank");
+            }
+
+            Authority existingAuthority = authorityRepository.findAuthorityByAuthority(authority.getAuthority());
+
+            if (existingAuthority != null) {
+                return new ManagedUserModelApi(ResponseStatus.ALREADY_EXIST, "Authority already exist");
+            }
+
+            Authority newAuthority = new Authority();
+            newAuthority.setAuthority(authority.getAuthority());
+            newAuthority.setDescription(authority.getDescription());
+
+            authorityRepository.save(newAuthority);
+
+            ManagedUserModelApi managedUserModelApi = new ManagedUserModelApi();
+            managedUserModelApi.setMessage("Successfully added authority");
+            managedUserModelApi.setAuthorityModel(newAuthority);
+            managedUserModelApi.setResponseStatus(ResponseStatus.SUCCESSFUL);
+
+            return managedUserModelApi;
+        } catch (Exception e) {
+            logger.error("Error occurred while adding authority ", e);
+            return new ManagedUserModelApi(null, null,ResponseStatus.SYSTEM_ERROR, "Error occurred while adding authority");
+        }
+
+    }
+
+
 
 
 }
