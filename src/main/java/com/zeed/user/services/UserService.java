@@ -12,9 +12,11 @@ import com.zeed.usermanagement.repository.ManagedUserAuthorityRepository;
 import com.zeed.usermanagement.repository.ManagedUserRepository;
 import com.zeed.usermanagement.requestmodels.PasswordResetRequestModel;
 import com.zeed.usermanagement.requestmodels.UserUpdateRequestModel;
+import com.zeed.usermanagement.security.UserDetailsTokenEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -155,8 +157,11 @@ public class UserService {
             return new ManagedUserModelApi(null,null, ResponseStatus.INVALID_REQUEST, "Invalid request");
         }
 
-        if (Strings.isNullOrEmpty(resetRequestModel.getEmail())) {
-            return new ManagedUserModelApi(null,null, ResponseStatus.INVALID_REQUEST, "Email cannot be blank");
+        UserDetailsTokenEnvelope userDetailsTokenEnvelope = (UserDetailsTokenEnvelope) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = userDetailsTokenEnvelope.managedUser.getEmail();
+
+        if (Strings.isNullOrEmpty(email)) {
+            return new ManagedUserModelApi(null,null, ResponseStatus.INVALID_REQUEST, "Email not found for user");
         }
 
         if (Strings.isNullOrEmpty(resetRequestModel.getOldPassword()) || Strings.isNullOrEmpty(resetRequestModel.getNewPassword())) {
@@ -169,11 +174,11 @@ public class UserService {
 
         try {
             String oldEncodedPassword = passwordEncoder.encode(resetRequestModel.getOldPassword());
-            ManagedUser user = managedUserRepository.findOneByEmail(resetRequestModel.getEmail());
+            ManagedUser user = managedUserRepository.findOneByEmail(email);
             if (user == null) {
                 return new ManagedUserModelApi(null,null, ResponseStatus.NOT_FOUND, "User not found");
             }
-            boolean exist =  passwordEncoder.matches(resetRequestModel.getOldPassword(), oldEncodedPassword);
+            boolean exist =  passwordEncoder.matches(resetRequestModel.getOldPassword(), user.getPassword());
             if (!exist) {
                 return new ManagedUserModelApi(null,null, ResponseStatus.NOT_FOUND, "Incorrect old password. Please supply correct password");
             }
@@ -194,17 +199,23 @@ public class UserService {
             if (requestModel == null) {
                 return new ManagedUserModelApi(null,null, ResponseStatus.INVALID_REQUEST, "Invalid request");
             }
+            UserDetailsTokenEnvelope userDetailsTokenEnvelope = (UserDetailsTokenEnvelope) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String email = userDetailsTokenEnvelope.managedUser.getEmail();
 
-            if (Strings.isNullOrEmpty(requestModel.getOldEmail()) || Strings.isNullOrEmpty(requestModel.getNewEmail())) {
+            if (StringUtils.isEmpty(email)) {
+                return new ManagedUserModelApi(ResponseStatus.NOT_FOUND, "User is not logged in");
+            }
+
+            if (Strings.isNullOrEmpty(requestModel.getNewEmail())) {
                 return new ManagedUserModelApi(null,null, ResponseStatus.INVALID_REQUEST, "Both old and new Email cannot be blank");
             }
 
-            ManagedUser user = managedUserRepository.findOneByEmail(requestModel.getOldEmail());
+            ManagedUser user = managedUserRepository.findOneByEmail(email);
             if (user == null) {
                 return new ManagedUserModelApi(null,null,ResponseStatus.NOT_FOUND, "User not found");
             }
 
-            if (!requestModel.getOldEmail().trim().equals(requestModel.getNewEmail().trim())) {
+            if (!email.trim().equals(requestModel.getNewEmail().trim())) {
                 ManagedUser user1 = managedUserRepository.findOneByEmail(requestModel.getNewEmail());
                 if (user1 != null) {
                     return new ManagedUserModelApi(null,null,ResponseStatus.ALREADY_EXIST, "A user already exist with the email address");

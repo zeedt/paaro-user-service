@@ -47,7 +47,6 @@ public class UserController {
         return userService.activateUser(email);
     }
 
-    //TODO: pick email of the currently logged in user
     @ResponseBody
     @RequestMapping(value = "/reset_user_password", method = RequestMethod.POST)
     public ManagedUserModelApi resetUserPassword(@RequestBody PasswordResetRequestModel resetRequestModel) {
