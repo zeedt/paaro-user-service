@@ -30,13 +30,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http.requestMatcher(new ApiRequestMatcher());
         http.authorizeRequests()
-                .antMatchers("/api/v1/clients/**").permitAll()
-                .antMatchers("/api/v1/domains/register-domain").permitAll()
-                .antMatchers("/api/v1/domains/by_name").permitAll()
-                .antMatchers("/api/v1/oauth/revoke-token/for/**").permitAll()
-                .antMatchers("/api/v1/authorized-users/with-roles").permitAll()
-                .antMatchers("/api/v1/config-plugin").permitAll()
-                .antMatchers("/api/v1/config-plugin/**").permitAll()
                 .anyRequest().authenticated()
                 .and().csrf().disable();
     }

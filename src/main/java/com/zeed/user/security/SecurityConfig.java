@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -15,9 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -68,19 +65,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().ignoringAntMatchers("/user/**")
                 .requireCsrfProtectionMatcher(new RequestMatcher() {
                     private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
-                    private RegexRequestMatcher apiMatcher = new RegexRequestMatcher("/api/.*", null);
-//                    private RegexRequestMatcher oauthMatcher = new RegexRequestMatcher("/oauth/.*", null);
-//                    private RegexRequestMatcher localuserMatcher = new RegexRequestMatcher("/user/.*", null);
                     @Override
                     public boolean matches(HttpServletRequest httpServletRequest) {
                         if (allowedMethods.matcher(httpServletRequest.getMethod()).matches())
                             return false;
-                        if (apiMatcher.matches(httpServletRequest))
-                            return false;
-//                        if (oauthMatcher.matches(httpServletRequest))
-//                            return false;
-//                        if (localuserMatcher.matches(httpServletRequest))
-//                            return false;
                         return true;
                     }
                 })
@@ -90,7 +78,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .sessionFixation().migrateSession()
                 .maximumSessions(1)
-//                .expiredUrl(("/login"))
                 .maxSessionsPreventsLogin(false)
                 .sessionRegistry(new SessionRegistryImpl()).and()
                 .sessionAuthenticationStrategy(userConcurrentSessions())
