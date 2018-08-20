@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -58,6 +59,11 @@ public class UserController {
     @RequestMapping(value = "/updateUser", method = RequestMethod.POST)
     public ManagedUserModelApi updateUserDetails(@RequestBody UserUpdateRequestModel requestModel){
         return userService.updateUser(requestModel);
+    }
+    @ResponseBody
+    @RequestMapping(value = "/forgotPassword", method = RequestMethod.POST)
+    public ManagedUserModelApi forgotPassword(@RequestBody ManagedUserModelApi requestModel) throws IOException {
+        return userService.forgotPassword(requestModel);
     }
 
 }

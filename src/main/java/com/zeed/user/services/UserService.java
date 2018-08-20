@@ -13,6 +13,7 @@ import com.zeed.usermanagement.repository.ManagedUserRepository;
 import com.zeed.usermanagement.requestmodels.PasswordResetRequestModel;
 import com.zeed.usermanagement.requestmodels.UserUpdateRequestModel;
 import com.zeed.usermanagement.security.UserDetailsTokenEnvelope;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +43,9 @@ public class UserService {
 
     @Autowired
     public AuthorityRepository authorityRepository;
+
+    @Autowired
+    private UserEmailService userEmailService;
 
     @Autowired
     public ManagedUserAuthorityRepository managedUserAuthorityRepository;
@@ -128,6 +133,7 @@ public class UserService {
             }
             user.setActive(false);
             managedUserRepository.save(user);
+            userEmailService.sendDeactivateAccountEmail(user);
             return new ManagedUserModelApi(null,null,ResponseStatus.SUCCESSFUL, "User successfully deactivated");
         } catch (Exception e) {
             logger.error("Error occurred while deactivating user due to ", e);
@@ -144,6 +150,7 @@ public class UserService {
             }
             user.setActive(true);
             managedUserRepository.save(user);
+            userEmailService.sendActivateAccountEmail(user);
             return new ManagedUserModelApi(null,null,ResponseStatus.SUCCESSFUL, "User successfully activated");
         } catch (Exception e) {
             logger.error("Error occurred while activating user due to ", e);
@@ -236,7 +243,31 @@ public class UserService {
 
     }
 
+    public ManagedUserModelApi forgotPassword(ManagedUserModelApi modelApi) throws IOException {
 
+        try {
+            if (modelApi == null || StringUtils.isEmpty(modelApi.getEmail())) {
+                return new ManagedUserModelApi(ResponseStatus.NOT_FOUND, "Email cannot be blank");
+            }
 
+            ManagedUser user = managedUserRepository.findOneByEmail(modelApi.getEmail());
+            if (user == null) {
+                return new ManagedUserModelApi(null,null,ResponseStatus.NOT_FOUND, "User not found");
+            }
 
-}
+            String generatedString = RandomStringUtils.randomAlphanumeric(10);
+            String encodedPassword = passwordEncoder.encode(generatedString);
+            user.setPassword(encodedPassword);
+            managedUserRepository.save(user);
+
+            userEmailService.sendForgotPasswordEmail(user.getEmail(), generatedString, user.getFirstName());
+            user.setPassword("");
+            return new ManagedUserModelApi(user, null,ResponseStatus.SUCCESSFUL, "New password has been sent to email");
+        } catch (IOException e) {
+            logger.error("Error occured while generating new password");
+            return new ManagedUserModelApi(null, null, ResponseStatus.SYSTEM_ERROR, "System error occured while generating new password due to ==> " + e.getCause().toString());
+        }
+
+    }
+
+    }
