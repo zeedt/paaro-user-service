@@ -42,6 +42,13 @@ public class UserEmailService {
     @Value("${email.forgot-password-subject:Paaro - Password reset}")
     private String forgotPasswordSubject;
 
+
+    @Value("${email.forgot-password:email-template/admin-user-creation}")
+    private String newAdminUserPath;
+
+    @Value("${email.forgot-password-subject:Paaro - Admin user created}")
+    private String newAdminUserSubject;
+
     @Autowired
     private UserEmailService(@Qualifier("emailTemplateEngine") TemplateEngine templateEngine) {
         this.templateEngine = templateEngine;
@@ -105,6 +112,26 @@ public class UserEmailService {
         context.setVariable("firstName", firstName);
         context.setVariable("password", password);
         return this.templateEngine.process(forgotPasswordPath,context);
+    }
+
+    @Async
+    public void sendNewAdminUserEmail(String email, String password, String firstName) throws IOException {
+
+        EmailNotification emailNotification = new EmailNotification();
+        emailNotification.setContent(getNewAdminUserEmailContent(firstName, password));
+        emailNotification.setSubject(newAdminUserSubject);
+        emailNotification.setTo("yusufsaheedtaiwo@gmail.com");
+        emailNotification.addTo("soluwawunmi@gmail.com");
+        emailNotification.addTo(email);
+
+        sendGridEmail.sendEmailWithNoAttachment(emailNotification);
+    }
+
+    private String getNewAdminUserEmailContent(String firstName, String password) {
+        Context context = new Context();
+        context.setVariable("firstName", firstName);
+        context.setVariable("password", password);
+        return this.templateEngine.process(newAdminUserPath,context);
     }
 
 }

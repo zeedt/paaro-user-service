@@ -19,12 +19,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,6 +50,9 @@ public class UserService {
 
     @Autowired
     private UserEmailService userEmailService;
+
+    @Autowired
+    private TokenStore jdbcTokenStore;
 
     @Autowired
     public ManagedUserAuthorityRepository managedUserAuthorityRepository;
@@ -266,6 +273,61 @@ public class UserService {
         } catch (IOException e) {
             logger.error("Error occured while generating new password");
             return new ManagedUserModelApi(null, null, ResponseStatus.SYSTEM_ERROR, "System error occured while generating new password due to ==> " + e.getCause().toString());
+        }
+
+    }
+
+    public ManagedUserModelApi createAdminUser(ManagedUser managedUser) {
+
+        try {
+            if (managedUser == null || Strings.isNullOrEmpty(managedUser.getEmail())) {
+                return new ManagedUserModelApi(managedUser, null, ResponseStatus.INVALID_REQUEST, "Email cannot be null");
+            }
+
+            ManagedUser user = managedUserRepository.findOneByEmail(managedUser.getEmail());
+            if (user!=null) {
+                return new ManagedUserModelApi(managedUser, null,null, ResponseStatus.ALREADY_EXIST);
+            }
+
+            if (Strings.nullToEmpty(managedUser.getFirstName()).trim().length() < 3 || Strings.nullToEmpty(managedUser.getLastName()).trim().length()<3) {
+                return new ManagedUserModelApi(managedUser, null, ResponseStatus.INVALID_REQUEST, "First name and last name cannot be less than 3 characters ");
+            }
+            if (Strings.nullToEmpty(managedUser.getPhoneNumber()).length() < 11 || Strings.nullToEmpty(managedUser.getPhoneNumber()).length() > 20) {
+                return new ManagedUserModelApi(managedUser, null, ResponseStatus.INVALID_REQUEST, "Phone number must be between 11-20 characters");
+            }
+
+            String generatedString = RandomStringUtils.randomAlphanumeric(10);
+            String encodedPassword = passwordEncoder.encode(generatedString);
+            managedUser.setDateCreated(new java.util.Date());
+            managedUser.setActive(true);
+            managedUser.setUserCategory(UserCategory.ADMIN);
+            managedUser.setPassword(encodedPassword);
+            managedUserRepository.save(managedUser);
+            managedUser.setPassword("");
+            userEmailService.sendNewAdminUserEmail(managedUser.getEmail(), generatedString, managedUser.getFirstName());
+            return new ManagedUserModelApi(managedUser, null,ResponseStatus.SUCCESSFUL, "Admin user created successfully");
+        } catch (Exception e) {
+            logger.error("Error occurred while creating user due to ", e);
+            return new ManagedUserModelApi(managedUser,null, ResponseStatus.SYSTEM_ERROR,"Error occurred while creating admin user");
+        }
+    }
+
+    public ManagedUserModelApi logout() {
+
+        try {
+            UserDetailsTokenEnvelope userDetailsTokenEnvelope = (UserDetailsTokenEnvelope) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            String email = userDetailsTokenEnvelope.managedUser.getEmail();
+            Collection<OAuth2AccessToken> oAuth2AccessTokens = ((JdbcTokenStore)jdbcTokenStore).findTokensByUserName(email);
+
+            for (OAuth2AccessToken oAuth2AccessToken:oAuth2AccessTokens) {
+                ((JdbcTokenStore)jdbcTokenStore).removeAccessToken(oAuth2AccessToken);
+            }
+
+            return new ManagedUserModelApi(ResponseStatus.SUCCESSFUL,"Successfully logged out user");
+        } catch (Exception e) {
+            logger.error("Error occured while logging out user due to ", e);
+            return new ManagedUserModelApi(ResponseStatus.SYSTEM_ERROR,"System error occured");
+
         }
 
     }

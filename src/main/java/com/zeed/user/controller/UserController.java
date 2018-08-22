@@ -66,4 +66,17 @@ public class UserController {
         return userService.forgotPassword(requestModel);
     }
 
+    @ResponseBody
+    @PreAuthorize("hasAuthority('CREATE_ADMIN_USER')")
+    @RequestMapping(value = "/createAdminUser", method = RequestMethod.POST)
+    public ManagedUserModelApi createAdminUser(@RequestBody ManagedUser managedUser){
+        return userService.createAdminUser(managedUser);
+    }
+
+    @ResponseBody
+    @RequestMapping (value = "/logout", method = RequestMethod.GET)
+    public ManagedUserModelApi logout() {
+        return userService.logout();
+    }
+
 }
